@@ -18,7 +18,7 @@ typedef struct SkipList {
     int tail;
 } SkipList;
 
-struct SkipList buildSkipList();
+ SkipList *buildSkipList();
 
 void addNewLevel(struct SkipList *skipList);
 
