@@ -18,12 +18,14 @@ typedef struct SkipList {
     int tail;
 } SkipList;
 
- SkipList *buildSkipList();
-
 void addNewLevel(struct SkipList *skipList);
 
 void skipInsert(int number, struct SkipList *skipList);
 
 void printSkipList(struct SkipList *skipList);
+
+struct SkipList *makeSkipList();
+
+struct Node *makeNode(int value);
 
 #endif //SKIPLIST_MAIN_H
