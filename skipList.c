@@ -4,38 +4,27 @@
 #include <limits.h>
 #include "Main.h"
 
-
-SkipList *buildSkipList() {//в данный момент не используется
-    SkipList *skipList = NULL;
-    skipList = malloc(sizeof(Node **));
-    skipList->table = NULL;
-    skipList->tail = 0;
-    skipList->levelCapacity = NULL;
-    addNewLevel(skipList);
-    return skipList;
-}
-
 void addNewLevel(SkipList *skipList) {
     (skipList->tail)++;
-    skipList->table = realloc(skipList->table, skipList->tail * sizeof(struct Node *));
+    skipList->table = realloc(skipList->table, skipList->tail * sizeof(struct Node **));
     skipList->table[skipList->tail - 1] = NULL;
-    skipList->table[skipList->tail - 1] = realloc(skipList->table[skipList->tail - 1], 2 * sizeof(struct Node));
+    skipList->table[skipList->tail - 1] = malloc(2 * sizeof(struct Node *));
     Node *first = makeNode(INT_MIN);
     Node *last = makeNode(INT_MAX);
     if (skipList->tail != 1) {
-        first->down = &(skipList->table[skipList->tail - 2][0]);
-        last->down = &(skipList->table[skipList->tail - 2][1]);
+        first->down = (skipList->table[skipList->tail - 2][0]);
+        last->down = (skipList->table[skipList->tail - 2][1]);
     }
     last->left = first;
     first->right = last;
-    skipList->table[skipList->tail - 1][0] = *first;
-    skipList->table[skipList->tail - 1][1] = *last;
+    skipList->table[skipList->tail - 1][0] = first;
+    skipList->table[skipList->tail - 1][1] = last;
 
     skipList->levelCapacity = realloc(skipList->levelCapacity, skipList->tail * sizeof(int));
     skipList->levelCapacity[skipList->tail - 1] = 2;
 }
 
-void skipInsert(int number, SkipList *skipList) {
+void skipInsert(int number, SkipList *skipList,int randomNumber) {
     int i = 0;
     do {
         i++;
@@ -43,27 +32,28 @@ void skipInsert(int number, SkipList *skipList) {
             addNewLevel(skipList);
         }
     } while (rand() % 2 == 1);
+
     Node *current = NULL;
-    current = &(skipList->table[i - 1][0]);
-    Node temp = *current;
+    current = skipList->table[i - 1][0];
     Node *prevP = NULL;
+
     while (i != 0) {
         while (number > current->right->key) {
             current = current->right;
         }
-        temp = *current;
-        if (current->right->key == current->key) return;
+        if (current->right->key == number) return;
 
         (skipList->levelCapacity[i - 1])++;
-        skipList->table[i - 1] = realloc(skipList->table[i - 1], skipList->levelCapacity[i - 1] * sizeof(struct Node));
-        current = &temp;
+        skipList->table[i - 1] = realloc(skipList->table[i - 1],
+                                         skipList->levelCapacity[i - 1] * sizeof(struct Node *));
+
 
         Node *new = makeNode(number);
         new->left = current;
         new->right = current->right;
-        if (i != skipList->tail) prevP->down = new;
+        if (prevP != NULL) prevP->down = new;
 
-        skipList->table[i - 1][skipList->levelCapacity[i - 1] - 1] = *new;
+        skipList->table[i - 1][skipList->levelCapacity[i - 1] - 1] = new;
         current->right->left = new;
         current->right = new;
         prevP = new;
@@ -71,14 +61,13 @@ void skipInsert(int number, SkipList *skipList) {
         if (i == 0) break;
         current = current->down;
     }
-    current = &skipList->table[skipList->tail - 1][0];
 }
 
 void printSkipList(SkipList *skipList) {
     for (int i = skipList->tail - 1; i >= 0; --i) {
         printf("level:%d ", i + 1);
         Node *current = NULL;
-        current = &skipList->table[i][0];
+        current = skipList->table[i][0];
         while (current->right != NULL) {
             printf("%d ", current->key);
             current = current->right;

@@ -13,14 +13,14 @@ typedef struct Node {
 } Node;
 
 typedef struct SkipList {
-    struct Node **table;
+    struct Node ***table;
     int *levelCapacity;
     int tail;
 } SkipList;
 
 void addNewLevel(struct SkipList *skipList);
 
-void skipInsert(int number, struct SkipList *skipList);
+void skipInsert(int number, SkipList *skipList,int randomNumber);
 
 void printSkipList(struct SkipList *skipList);
 
